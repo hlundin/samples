@@ -47,16 +47,16 @@ WebAudioExtended.prototype.applyFilter = function(stream) {
       // Shift all frequency bins (except DC) N steps towards "lower
       // freqencies".
       var N = Math.ceil(shiftHz * fftSize / e.srcElement.context.sampleRate);
-      for (var i = 1; i < fftSize/2 - N; i++) {
-        fft.real[i] = fft.real[i + N];
-        fft.imag[i] = fft.imag[i + N];
-        fft.real[fftSize - 1 - i] = fft.real[fftSize - 1 - i - N];
-        fft.imag[fftSize - 1 - i] = fft.imag[fftSize - 1 - i - N];
+      for (var j = 1; j < fftSize/2 - N; j++) {
+        fft.real[j] = fft.real[j + N];
+        fft.imag[j] = fft.imag[j + N];
+        fft.real[fftSize - 1 - j] = fft.real[fftSize - 1 - j - N];
+        fft.imag[fftSize - 1 - j] = fft.imag[fftSize - 1 - j - N];
       }
       // Zero out the N highest frequencies.
-      for (var i = fftSize/2 - N; i < fftSize/2 + N; i++) {
-        fft.real[i] = 0;
-        fft.imag[i] = 0;
+      for (var k = fftSize/2 - N; k < fftSize/2 + N; k++) {
+        fft.real[k] = 0;
+        fft.imag[k] = 0;
       }
 
       // Inverse FFT and window.
@@ -65,13 +65,13 @@ WebAudioExtended.prototype.applyFilter = function(stream) {
       // Add first half of tempoutput to first half of outputMem. The second
       // half of tempoutput is copied to the second half of outputMem for
       // use next time.
-      for (var i = 0; i < blockSize; i++) {
-        outputMem[i] += tempoutput[i];
-        outputMem[blockSize + i] = tempoutput[blockSize + i];
+      for (var m = 0; m < blockSize; m++) {
+        outputMem[m] += tempoutput[m];
+        outputMem[blockSize + m] = tempoutput[blockSize + m];
       }
       // Output first half of outputMem now.
-      for (var i = 0; i < blockSize; i++) {
-        output[i] = outputMem[i];
+      for (var n = 0; n < blockSize; n++) {
+        output[n] = outputMem[n];
       }
       // Shift last half of inputMem and outputMem to first half to prepare
       // for the next round.
