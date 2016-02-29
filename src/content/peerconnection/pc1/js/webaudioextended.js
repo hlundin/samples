@@ -21,64 +21,64 @@ WebAudioExtended.prototype.start = function() {
 
 WebAudioExtended.prototype.applyFilter = function(stream) {
   this.mic = this.context.createMediaStreamSource(stream);
-  var block_size = 1024;
-  var fft_size = 2 * block_size;
-  var shift_hz = 200; // Was 430; the higher the more "warping".
+  var blockSize = 1024;
+  var fftSize = 2 * blockSize;
+  var shiftHz = 200; // Was 430; the higher the more "warping".
   var ctx = this.context;
   var effect = (function() {
-    var inputmem = new Float32Array(fft_size).fill(0);
-    var outputmem = new Float32Array(fft_size).fill(0);
-    var node = ctx.createScriptProcessor(block_size, 1, 1);
-    var hamming_win = new WindowFunction(DSP.HAMMING);
+    var inputMem = new Float32Array(fftSize).fill(0);
+    var outputMem = new Float32Array(fftSize).fill(0);
+    var node = ctx.createScriptProcessor(blockSize, 1, 1);
+    var hammingWin = new WindowFunction(DSP.HAMMING);
     node.onaudioprocess = function(e) {
       // Get the input and output arrays.
       var input = e.inputBuffer.getChannelData(0);
       var output = e.outputBuffer.getChannelData(0);
-      // Copy input to last half of inputmem. (First half is populated with
+      // Copy input to last half of inputMem. (First half is populated with
       // the input from last time.)
-      for (var i = 0; i < block_size; i++) {
-        inputmem[block_size + i] = input[i];
+      for (var i = 0; i < blockSize; i++) {
+        inputMem[blockSize + i] = input[i];
       }
 
       // Perform FFT of input.
-      var fft = new FFT(fft_size, e.srcElement.context.sampleRate);
-      fft.forward(inputmem);
+      var fft = new FFT(fftSize, e.srcElement.context.sampleRate);
+      fft.forward(inputMem);
 
       // Modify the signal in the frequency domain.
       // Shift all frequency bins (except DC) N steps towards "lower
       // freqencies".
-      var N = Math.ceil(shift_hz * fft_size / e.srcElement.context.sampleRate);
-      for (var i = 1; i < fft_size/2 - N; i++) {
+      var N = Math.ceil(shiftHz * fftSize / e.srcElement.context.sampleRate);
+      for (var i = 1; i < fftSize/2 - N; i++) {
         fft.real[i] = fft.real[i + N];
         fft.imag[i] = fft.imag[i + N];
-        fft.real[fft_size - 1 - i] = fft.real[fft_size - 1 - i - N];
-        fft.imag[fft_size - 1 - i] = fft.imag[fft_size - 1 - i - N];
+        fft.real[fftSize - 1 - i] = fft.real[fftSize - 1 - i - N];
+        fft.imag[fftSize - 1 - i] = fft.imag[fftSize - 1 - i - N];
       }
       // Zero out the N highest frequencies.
-      for (var i = fft_size/2 - N; i < fft_size/2 + N; i++) {
+      for (var i = fftSize/2 - N; i < fftSize/2 + N; i++) {
         fft.real[i] = 0;
         fft.imag[i] = 0;
       }
 
       // Inverse FFT and window.
-      var tempoutput = hamming_win.process(fft.inverse(fft.real, fft.imag));
+      var tempoutput = hammingWin.process(fft.inverse(fft.real, fft.imag));
 
-      // Add first half of tempoutput to first half of outputmem. The second
-      // half of tempoutput is copied to the second half of outputmem for
+      // Add first half of tempoutput to first half of outputMem. The second
+      // half of tempoutput is copied to the second half of outputMem for
       // use next time.
-      for (var i = 0; i < block_size; i++) {
-        outputmem[i] += tempoutput[i];
-        outputmem[block_size + i] = tempoutput[block_size + i];
+      for (var i = 0; i < blockSize; i++) {
+        outputMem[i] += tempoutput[i];
+        outputMem[blockSize + i] = tempoutput[blockSize + i];
       }
-      // Output first half of outputmem now.
-      for (var i = 0; i < block_size; i++) {
-        output[i] = outputmem[i];
+      // Output first half of outputMem now.
+      for (var i = 0; i < blockSize; i++) {
+        output[i] = outputMem[i];
       }
-      // Shift last half of inputmem and outputmem to first half to prepare
+      // Shift last half of inputMem and outputMem to first half to prepare
       // for the next round.
-      inputmem.copyWithin(0, block_size);
-      outputmem.copyWithin(0, block_size);
-    }
+      inputMem.copyWithin(0, blockSize);
+      outputMem.copyWithin(0, blockSize);
+    };
     return node;
   })();
   this.mic.connect(effect);
