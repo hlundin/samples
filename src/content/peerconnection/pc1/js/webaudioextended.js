@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
+ *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -10,14 +10,13 @@
 
 // WebAudioExtended helper class which takes care of the WebAudio related parts.
 
+/* global WindowFunction, DSP, FFT */
+
 function WebAudioExtended() {
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
   /* global AudioContext */
   this.context = new AudioContext();
 }
-
-WebAudioExtended.prototype.start = function() {
-};
 
 WebAudioExtended.prototype.applyFilter = function(stream) {
   this.mic = this.context.createMediaStreamSource(stream);

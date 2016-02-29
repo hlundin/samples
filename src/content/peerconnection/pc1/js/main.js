@@ -120,7 +120,7 @@ function call() {
   pc1.addStream(filteredStream);
   trace('Added local stream to pc1');
   // Connect the video stream directly, since the filteredStream contains
-  // only audio. (Is this the right thing to do?)
+  // only audio.
   filteredStream.addTrack(localStream.getVideoTracks()[0]);
   trace('pc1 createOffer start');
   pc1.createOffer(onCreateOfferSuccess, onCreateSessionDescriptionError,
