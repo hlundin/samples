@@ -8,6 +8,8 @@
 
 'use strict';
 
+/* global WebAudioExtended */
+
 var startButton = document.getElementById('startButton');
 var callButton = document.getElementById('callButton');
 var hangupButton = document.getElementById('hangupButton');
